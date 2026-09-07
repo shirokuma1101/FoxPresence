@@ -2,7 +2,7 @@
 
 Firefoxで再生しているYouTube、YouTube Music、dアニメストア、U-NEXT、NetflixをDiscord DesktopのRich Presenceへ表示するWindows用アプリです。Bot、Discordユーザートークン、ブラウザCookieは使用しません。
 
-> Version 0.2.0以降を推奨します。0.1.0のインストーラーはWindows PowerShell 5.1に対応していません。
+> Version 0.3.0以降を推奨します。0.1.0のインストーラーはWindows PowerShell 5.1に対応していません。
 
 ## Installation
 
@@ -90,6 +90,32 @@ powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1 -DiscordApplicati
 
 注意: Tray Applicationは自動起動できますが、Mozilla署名前のFirefox拡張機能はFirefox再起動後に手順5の再読み込みが必要です。
 
+## Updates
+
+### 手動アップデート
+
+FoxPresenceの展開先でPowerShellを開き、次を実行します。
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\update.ps1
+```
+
+最新版があれば、GitHub ReleaseからダウンロードしてSHA-256を検証し、Tray終了、ファイル更新、Native Host再登録、Tray再起動まで自動実行します。最新版ならファイルは変更しません。更新後はFirefoxの`about:debugging`で一時アドオンの「再読み込み」を押してください。
+
+### 自動アップデートを有効にする
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\enable-auto-update.ps1
+```
+
+Windowsへサインインしたとき、バックグラウンドでGitHub Releasesの最新版を確認し、更新があれば自動適用します。初期状態ではOFFです。無効にするには次を実行します。
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\disable-auto-update.ps1
+```
+
+自動更新後も、Mozilla未署名の一時アドオンはFirefox側で再読み込みまたはFirefox再起動後の再登録が必要です。更新処理はGitHub APIが返すRelease assetのSHA-256 digestとダウンロードファイルを照合し、一致しないファイルは適用しません。
+
 ### アンインストール
 
 展開したFoxPresenceフォルダをエクスプローラーで開き、アドレスバーへ`powershell`と入力してEnterを押します。開いたPowerShellで次を実行します。
@@ -102,7 +128,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1
 
 1. 実行中のFoxPresence Tray Applicationを終了
 2. Firefox Native Messaging Hostの登録とmanifestを削除
-3. Windows自動起動の登録を削除
+3. Windows自動起動と自動更新の登録を削除
 4. `%APPDATA%\FirefoxDiscordPresence`の設定を削除
 5. `%LOCALAPPDATA%\FirefoxDiscordPresence`のログを削除
 

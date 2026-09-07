@@ -14,6 +14,9 @@ $startupPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
 if (Get-ItemProperty -Path $startupPath -Name 'FirefoxDiscordPresence' -ErrorAction SilentlyContinue) {
     Remove-ItemProperty -Path $startupPath -Name 'FirefoxDiscordPresence'
 }
+if (Get-ItemProperty -Path $startupPath -Name 'FoxPresenceAutoUpdate' -ErrorAction SilentlyContinue) {
+    Remove-ItemProperty -Path $startupPath -Name 'FoxPresenceAutoUpdate'
+}
 
 function Remove-FoxPresenceDirectory([string] $Path, [string] $ExpectedParent) {
     if (-not (Test-Path -LiteralPath $Path)) { return }

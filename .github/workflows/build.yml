@@ -81,6 +81,7 @@ jobs:
           Copy-Item -Recurse scripts package/scripts
           Copy-Item -Recurse native-host package/native-host
           Copy-Item README.md package/README.md
+          Copy-Item VERSION package/VERSION
           Compress-Archive -Path package/* -DestinationPath dist/FoxPresence-win-x64.zip
 
       - name: Upload test results
