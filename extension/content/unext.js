@@ -6,7 +6,9 @@
   const titleCode = () => location.pathname.match(/\/(?:play|title)\/(SID\d+)/i)?.[1] || "";
   const episodeCode = () => location.pathname.match(/\/play\/SID\d+\/(ED\d+)/i)?.[1] || "";
   const clean = value => (value || "").replace(/\s*[|｜-]\s*U-NEXT.*$/iu, "").replace(/\s+/g, " ").trim();
-  const useful = value => value && !/^(再生|U-NEXT|ユーネクスト)$/iu.test(value);
+  const useful = value => value && value.length <= 300
+    && !/^(?:再生|U-NEXT|ユーネクスト|(?:SID|ED)\d+)$/iu.test(value)
+    && !/^https?:\/\//iu.test(value);
 
   function remember(title, artist, thumbnail) {
     title = clean(title); artist = clean(artist);
@@ -25,36 +27,75 @@
   function directText(doc, selectors) {
     for (const selector of selectors) {
       const element = doc.querySelector(selector);
-      const value = element?.getAttribute("content") || element?.textContent;
+      const value = element?.getAttribute("content")
+        || element?.getAttribute("data-title-name")
+        || element?.getAttribute("data-program-title")
+        || element?.getAttribute("data-series-title")
+        || element?.getAttribute("data-episode-title")
+        || element?.getAttribute("data-subtitle")
+        || element?.textContent;
       if (useful(clean(value))) return clean(value);
     }
     return "";
   }
 
-  function findEntityData(doc, code) {
+  function propertyPriority(key, entityType) {
+    const normalized = key.replace(/[_-]/g, "").toLowerCase();
+    if (/(?:id|code|url|href|path)$/.test(normalized)) return -1;
+    const priorities = entityType === "episode"
+      ? ["episodetitle", "subtitle", "subtitlename", "episodename", "displayname", "name", "title"]
+      : ["titlename", "seriestitle", "programtitle", "displayname", "name", "title"];
+    const index = priorities.indexOf(normalized);
+    return index < 0 ? -1 : priorities.length - index;
+  }
+
+  function findEntityData(doc, code, entityType) {
     if (!code) return "";
-    const script = doc.querySelector("#__NEXT_DATA__")?.textContent;
-    if (!script) return "";
-    try {
-      const root = JSON.parse(script); let found = "";
+    const scripts = [...doc.querySelectorAll("script")].map(element => element.textContent || "").filter(text => text.includes(code));
+    for (const script of scripts) try {
+      const root = JSON.parse(script); let found = ""; let bestPriority = -1;
       const visit = (value, depth = 0) => {
-        if (found || depth > 18 || !value || typeof value !== "object") return;
+        if (depth > 18 || !value || typeof value !== "object") return;
         if (Array.isArray(value)) { for (const child of value) visit(child, depth + 1); return; }
         const values = Object.values(value);
         if (values.some(item => item === code)) {
-          for (const [key, item] of Object.entries(value)) if (typeof item === "string" && /(?:title|name|episode)/i.test(key) && useful(clean(item))) { found = clean(item); return; }
+          for (const [key, item] of Object.entries(value)) {
+            const priority = propertyPriority(key, entityType);
+            if (priority > bestPriority && typeof item === "string" && useful(clean(item))) {
+              found = clean(item); bestPriority = priority;
+            }
+          }
         }
         for (const child of values) visit(child, depth + 1);
       };
-      visit(root); return found;
-    } catch { return ""; }
+      visit(root);
+      if (found) return found;
+    } catch { }
+    return findSerializedProperty(scripts.join("\n"), code, entityType);
+  }
+
+  function findSerializedProperty(source, code, entityType) {
+    const codeIndex = source.indexOf(code);
+    if (codeIndex < 0) return "";
+    const nearby = source.slice(Math.max(0, codeIndex - 4000), codeIndex + 4000);
+    const expression = /["']([A-Za-z][\w-]*)["']\s*:\s*"((?:\\.|[^"\\])*)"/g;
+    let match; let best = ""; let bestPriority = -1;
+    while ((match = expression.exec(nearby))) {
+      const priority = propertyPriority(match[1], entityType);
+      if (priority <= bestPriority) continue;
+      try {
+        const value = clean(JSON.parse(`"${match[2]}"`));
+        if (useful(value)) { best = value; bestPriority = priority; }
+      } catch { }
+    }
+    return best;
   }
 
   function readDocument(doc) {
-    const series = directText(doc, ["[data-testid='player-title']", "[data-testid='title']", "[class*='PlayerTitle']", "[class*='playerTitle']", "main h1", "h1"])
-      || findEntityData(doc, titleCode());
-    let episode = directText(doc, ["[data-testid='player-episode-title']", "[data-testid='episode-title']", "[class*='EpisodeTitle']", "[class*='episodeTitle']"])
-      || findEntityData(doc, episodeCode());
+    const series = directText(doc, ["[data-title-name]", "[data-program-title]", "[data-series-title]", "[data-testid='player-title']", "[data-testid='title']", "[class*='PlayerTitle']", "[class*='playerTitle']", "main h1", "h1"])
+      || findEntityData(doc, titleCode(), "title");
+    let episode = directText(doc, ["[data-episode-title]", "[data-subtitle]", "[data-testid='player-episode-title']", "[data-testid='episode-title']", "[class*='EpisodeTitle']", "[class*='episodeTitle']"])
+      || findEntityData(doc, episodeCode(), "episode");
     const episodeLink = episodeCode() && doc.querySelector(`[href*='${episodeCode()}'],[data-episode-code='${episodeCode()}']`);
     if (!episode && episodeLink) episode = clean(episodeLink.closest("li,article,[class*='episode' i]")?.textContent);
     const ogTitle = directText(doc, ["meta[property='og:title']", "meta[name='twitter:title']"]);
