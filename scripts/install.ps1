@@ -28,7 +28,8 @@ $settings = [ordered]@{
     discordApplicationId = $DiscordApplicationId
     staleTimeoutSeconds = 45
 }
-$settings | ConvertTo-Json | Set-Content -LiteralPath $settingsPath -Encoding utf8NoBOM
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[IO.File]::WriteAllText($settingsPath, ($settings | ConvertTo-Json), $utf8NoBom)
 
 & (Join-Path $PSScriptRoot 'install-native-host.ps1') -BridgePath $bridgePath
 $extensionArchive = Join-Path $packageRoot 'firefox-extension.zip'

@@ -20,7 +20,8 @@ $manifest = [ordered]@{
     type = 'stdio'
     allowed_extensions = @('firefox-discord-presence@shiro1103.local')
 }
-$manifest | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath $manifestPath -Encoding utf8NoBOM
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json -Depth 3), $utf8NoBom)
 $registryPath = 'HKCU:\Software\Mozilla\NativeMessagingHosts\com.shiro1103.firefox_discord_presence'
 New-Item -Path $registryPath -Force | Out-Null
 Set-Item -Path $registryPath -Value $manifestPath

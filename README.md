@@ -2,6 +2,8 @@
 
 Firefoxで再生しているYouTube、YouTube Music、dアニメストアをDiscord DesktopのRich Presenceへ表示するWindows用アプリです。Bot、Discordユーザートークン、ブラウザCookieは使用しません。
 
+> Version 0.1.1以降を使用してください。0.1.0のインストーラーはWindows PowerShell 5.1に対応していません。
+
 ## Installation
 
 以下を上から順番に実行してください。管理者権限は不要です。
