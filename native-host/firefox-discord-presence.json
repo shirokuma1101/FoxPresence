@@ -1,0 +1,7 @@
+{
+  "name": "com.shiro1103.firefox_discord_presence",
+  "description": "Firefox Discord Presence native messaging bridge",
+  "path": "REPLACE_WITH_ABSOLUTE_PATH_TO_BRIDGE_EXE",
+  "type": "stdio",
+  "allowed_extensions": ["firefox-discord-presence@shiro1103.local"]
+}

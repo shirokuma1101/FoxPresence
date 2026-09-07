@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/FirefoxDiscordPresence.Bridge/FirefoxDiscordPresence.Bridge.csproj" />
+    <Project Path="src/FirefoxDiscordPresence.Shared/FirefoxDiscordPresence.Shared.csproj" />
+    <Project Path="src/FirefoxDiscordPresence.Tray/FirefoxDiscordPresence.Tray.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FirefoxDiscordPresence.Tests/FirefoxDiscordPresence.Tests.csproj" />
+  </Folder>
+</Solution>

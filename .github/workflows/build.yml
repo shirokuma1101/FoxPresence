@@ -1,0 +1,97 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and package (win-x64)
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install .NET 10 SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore FirefoxDiscordPresence.slnx
+
+      - name: Build
+        run: dotnet build FirefoxDiscordPresence.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test tests/FirefoxDiscordPresence.Tests/FirefoxDiscordPresence.Tests.csproj --configuration Release --no-build --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
+
+      - name: Validate extension JavaScript and manifest
+        shell: pwsh
+        run: |
+          node --check extension/background.js
+          node --check extension/lib/messaging.js
+          node --check extension/content/youtube.js
+          node --check extension/content/youtube-music.js
+          node --check extension/content/d-anime.js
+          Get-Content -Raw extension/manifest.json | ConvertFrom-Json | Out-Null
+
+      - name: Validate PowerShell scripts
+        shell: pwsh
+        run: |
+          $files = @('scripts/install-native-host.ps1', 'scripts/uninstall-native-host.ps1')
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $file), [ref]$tokens, [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error "$file`: $($_.Message)" }
+              exit 1
+            }
+          }
+
+      - name: Publish Tray
+        run: dotnet publish src/FirefoxDiscordPresence.Tray/FirefoxDiscordPresence.Tray.csproj --configuration Release --runtime win-x64 --self-contained false --output dist/tray
+
+      - name: Publish Bridge
+        run: dotnet publish src/FirefoxDiscordPresence.Bridge/FirefoxDiscordPresence.Bridge.csproj --configuration Release --runtime win-x64 --self-contained false --output dist/bridge
+
+      - name: Package extension and installation files
+        shell: pwsh
+        run: |
+          Compress-Archive -Path extension/* -DestinationPath dist/firefox-extension.zip
+          Copy-Item -Recurse scripts dist/scripts
+          Copy-Item -Recurse native-host dist/native-host
+          Copy-Item README.md dist/README.md
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: TestResults/*.trx
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload Windows package
+        uses: actions/upload-artifact@v7
+        with:
+          name: FoxPresence-win-x64-${{ github.sha }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 30
