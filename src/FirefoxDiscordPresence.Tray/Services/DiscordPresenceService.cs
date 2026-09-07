@@ -47,6 +47,7 @@ public sealed class DiscordPresenceService : IDisposable
             var details = DisplayDetails(media);
             var state = DisplayState(media);
             var hasArtwork = !string.IsNullOrWhiteSpace(media.ThumbnailUrl);
+            var serviceIcon = ServiceIconUrl(media.Site);
             var presence = new RichPresence
             {
                 Type = media.Site == "youtube_music" ? ActivityType.Listening : ActivityType.Watching,
@@ -58,10 +59,10 @@ public sealed class DiscordPresenceService : IDisposable
                 Timestamps = _timestamps,
                 Assets = new Assets
                 {
-                    LargeImageKey = hasArtwork ? media.ThumbnailUrl : media.Site,
+                    LargeImageKey = hasArtwork ? media.ThumbnailUrl : serviceIcon,
                     LargeImageText = Truncate(media.Title, 128),
                     LargeImageUrl = media.Url,
-                    SmallImageKey = hasArtwork ? media.Site : null,
+                    SmallImageKey = hasArtwork ? serviceIcon : null,
                     SmallImageText = hasArtwork ? $"{(media.Site == "youtube_music" ? "Listening" : "Watching")} on {siteName}" : null,
                     SmallImageUrl = hasArtwork ? media.Url : null
                 },
@@ -97,6 +98,14 @@ public sealed class DiscordPresenceService : IDisposable
         return string.IsNullOrWhiteSpace(media.Album) ? creator : $"{creator} • {media.Album}";
     }
     private static string SiteName(string site) => site switch { "youtube_music" => "YouTube Music", "d_anime" => "dアニメストア", "unext" => "U-NEXT", "netflix" => "Netflix", _ => "YouTube" };
+    private static string ServiceIconUrl(string site) => site switch
+    {
+        "youtube_music" => "https://music.youtube.com/img/favicon_144.png",
+        "d_anime" => "https://animestore.docomo.ne.jp/favicon-highres.png?1",
+        "unext" => "https://video.unext.jp/android-icon.png",
+        "netflix" => "https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2016.png",
+        _ => "https://www.youtube.com/img/favicon_144.png"
+    };
     private static string ButtonLabel(string site) => site switch { "youtube_music" => "Open in YouTube Music", "d_anime" => "Watch on dアニメストア", "unext" => "Watch on U-NEXT", "netflix" => "Watch on Netflix", _ => "Watch on YouTube" };
     public void Dispose() { Clear(); _client?.Dispose(); }
 }

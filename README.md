@@ -2,7 +2,7 @@
 
 Firefoxで再生しているYouTube、YouTube Music、dアニメストア、U-NEXT、NetflixをDiscord DesktopのRich Presenceへ表示するWindows用アプリです。Bot、Discordユーザートークン、ブラウザCookieは使用しません。
 
-> Version 0.4.0以降を推奨します。0.1.0のインストーラーはWindows PowerShell 5.1に対応していません。
+> Version 0.4.1以降を推奨します。0.1.0のインストーラーはWindows PowerShell 5.1に対応していません。
 
 ## Installation
 
@@ -24,14 +24,7 @@ Discord Web版だけではPresenceを表示できません。Release ZIPには.N
 4. 左側の「General Information」を開き、「APPLICATION ID」の「Copy」を押します。後の手順で使うため、数字を保存しておきます。
 5. Botは作成しません。Bot Token、Client Secret、OAuth認証も不要です。
 
-サムネイルURLをDiscordが利用できない場合に備えて固定画像を登録する場合は、左側の「Rich Presence」→「Art Assets」で画像を追加し、それぞれ次の名前を付けます。この手順は任意です。
-登録した画像は、作品サムネイルの右下に表示されるサービスバッジにも使用されます。
-
-- `youtube`
-- `youtube_music`
-- `d_anime`
-- `unext`
-- `netflix`
+対応サービスのfaviconは各公式サイトから自動取得するため、Discord Developer Portalの「Rich Presence」→「Art Assets」への画像登録は不要です。
 
 ### 3. FoxPresenceをダウンロードする
 
