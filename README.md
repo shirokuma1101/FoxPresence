@@ -2,7 +2,7 @@
 
 Firefoxで再生しているYouTube、YouTube Music、dアニメストア、U-NEXT、NetflixをDiscord DesktopのRich Presenceへ表示するWindows用アプリです。Bot、Discordユーザートークン、ブラウザCookieは使用しません。
 
-> Version 0.4.2以降を推奨します。0.1.0のインストーラーはWindows PowerShell 5.1に対応していません。
+> Version 0.4.3以降を推奨します。0.1.0のインストーラーはWindows PowerShell 5.1に対応していません。
 
 ## Installation
 
@@ -65,7 +65,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1 -DiscordApplicati
 1. Firefoxのアドレスバーへ`about:debugging#/runtime/this-firefox`と入力します。
 2. 「一時的なアドオンを読み込む」を押します。
 3. FoxPresenceを展開したフォルダにある`firefox-extension\manifest.json`を選択します。
-4. 一覧に「Firefox Discord Presence」が表示されたことを確認します。
+4. 一覧に「FoxPresence」が表示されたことを確認します。
 
 一時的なアドオンはFirefoxを終了すると解除されます。Firefoxを再起動した場合は、この手順だけ再実行してください。通常版Firefoxへ恒久インストールするにはMozillaによる署名が必要です。
 
@@ -130,7 +130,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1
 4. `%APPDATA%\FirefoxDiscordPresence`の設定を削除
 5. `%LOCALAPPDATA%\FirefoxDiscordPresence`のログを削除
 
-続いてFirefoxの`about:debugging#/runtime/this-firefox`を開き、「Firefox Discord Presence」の「削除」を押します。一時アドオンなのでFirefoxを再起動するだけでも解除されます。最後に、展開したFoxPresenceフォルダをエクスプローラーから削除してください。
+続いてFirefoxの`about:debugging#/runtime/this-firefox`を開き、「FoxPresence」の「削除」を押します。一時アドオンなのでFirefoxを再起動するだけでも解除されます。最後に、展開したFoxPresenceフォルダをエクスプローラーから削除してください。
 
 再インストールに備えて設定またはログを残す場合は、次のオプションを使用できます。
 
