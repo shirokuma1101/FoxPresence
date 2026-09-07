@@ -1,9 +1,17 @@
 {
   "manifest_version": 3,
   "name": "Firefox Discord Presence",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Sends supported Firefox media playback state to the local tray application.",
-  "browser_specific_settings": { "gecko": { "id": "firefox-discord-presence@shiro1103.local", "strict_min_version": "109.0" } },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "firefox-discord-presence@shiro1103.local",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": ["browsingActivity", "websiteContent", "websiteActivity"]
+      }
+    }
+  },
   "permissions": ["nativeMessaging"],
   "host_permissions": ["https://www.youtube.com/*", "https://music.youtube.com/*", "https://animestore.docomo.ne.jp/*", "https://video.unext.jp/*", "https://www.netflix.com/*"],
   "background": { "scripts": ["background.js"] },

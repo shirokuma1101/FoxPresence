@@ -50,6 +50,7 @@ jobs:
           node --check extension/content/unext.js
           node --check extension/content/netflix.js
           Get-Content -Raw extension/manifest.json | ConvertFrom-Json | Out-Null
+          npx --yes web-ext@10.6.0 lint --source-dir extension --warnings-as-errors
 
       - name: Validate PowerShell scripts
         shell: pwsh
@@ -81,6 +82,7 @@ jobs:
           Copy-Item -Recurse scripts package/scripts
           Copy-Item -Recurse native-host package/native-host
           Copy-Item README.md package/README.md
+          Copy-Item PRIVACY.md package/PRIVACY.md
           Copy-Item VERSION package/VERSION
           Compress-Archive -Path package/* -DestinationPath dist/FoxPresence-win-x64.zip
 

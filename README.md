@@ -2,7 +2,7 @@
 
 Firefoxで再生しているYouTube、YouTube Music、dアニメストア、U-NEXT、NetflixをDiscord DesktopのRich Presenceへ表示するWindows用アプリです。Bot、Discordユーザートークン、ブラウザCookieは使用しません。
 
-> Version 0.4.1以降を推奨します。0.1.0のインストーラーはWindows PowerShell 5.1に対応していません。
+> Version 0.4.2以降を推奨します。0.1.0のインストーラーはWindows PowerShell 5.1に対応していません。
 
 ## Installation
 
@@ -206,3 +206,5 @@ dotnet publish src/FirefoxDiscordPresence.Bridge -c Release -r win-x64 --self-co
 ## Security and privacy
 
 拡張機能のhost permissionは対応するYouTube、YouTube Music、dアニメストア、U-NEXT、Netflixの公式ドメインだけです。Discordユーザートークン、Bot Token、ブラウザCookie、各サービスの認証情報は取得・保存しません。Native Pipeは同じWindowsユーザーからのみ接続できます。
+
+取り扱うデータと利用目的の詳細は[Privacy Policy](PRIVACY.md)を参照してください。
