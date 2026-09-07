@@ -2,7 +2,7 @@
 
 Firefoxで再生しているYouTube、YouTube Music、dアニメストア、U-NEXT、NetflixをDiscord DesktopのRich Presenceへ表示するWindows用アプリです。Bot、Discordユーザートークン、ブラウザCookieは使用しません。
 
-> Version 0.3.1以降を推奨します。0.1.0のインストーラーはWindows PowerShell 5.1に対応していません。
+> Version 0.3.2以降を推奨します。0.1.0のインストーラーはWindows PowerShell 5.1に対応していません。
 
 ## Installation
 
@@ -101,6 +101,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\update.ps1
 ```
 
 最新版があれば、GitHub ReleaseからダウンロードしてSHA-256を検証し、Tray終了、ファイル更新、Native Host再登録、Tray再起動まで自動実行します。最新版ならファイルは変更しません。更新後はFirefoxの`about:debugging`で一時アドオンの「再読み込み」を押してください。
+
+Version 0.3.1以前から更新する場合は、旧UpdaterがBridgeを終了できないため、最初の1回だけFirefoxを終了してから実行してください。Version 0.3.2以降のUpdaterは、更新中にNative HostとBridgeを安全に停止するため、Firefoxを終了する必要はありません。
 
 ### 自動アップデートを有効にする
 

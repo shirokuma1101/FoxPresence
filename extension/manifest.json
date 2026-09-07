@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Firefox Discord Presence",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Sends supported Firefox media playback state to the local tray application.",
   "browser_specific_settings": { "gecko": { "id": "firefox-discord-presence@shiro1103.local", "strict_min_version": "109.0" } },
   "permissions": ["nativeMessaging"],
