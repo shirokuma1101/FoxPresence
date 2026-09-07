@@ -43,12 +43,28 @@ public sealed class DiscordPresenceService : IDisposable
         if (_client is null) return;
         try
         {
+            var siteName = SiteName(media.Site);
+            var details = DisplayDetails(media);
+            var state = DisplayState(media);
+            var hasArtwork = !string.IsNullOrWhiteSpace(media.ThumbnailUrl);
             var presence = new RichPresence
             {
-                Details = Truncate(media.Title, 128),
-                State = Truncate(string.IsNullOrWhiteSpace(media.Album) ? media.Artist : $"{media.Artist} • {media.Album}", 128),
+                Type = media.Site == "youtube_music" ? ActivityType.Listening : ActivityType.Watching,
+                StatusDisplay = StatusDisplayType.Details,
+                Details = Truncate(details, 128),
+                DetailsUrl = media.Url,
+                State = Truncate(state, 128),
+                StateUrl = media.Url,
                 Timestamps = _timestamps,
-                Assets = new Assets { LargeImageKey = string.IsNullOrWhiteSpace(media.ThumbnailUrl) ? media.Site : media.ThumbnailUrl, LargeImageText = SiteName(media.Site) },
+                Assets = new Assets
+                {
+                    LargeImageKey = hasArtwork ? media.ThumbnailUrl : media.Site,
+                    LargeImageText = Truncate(media.Title, 128),
+                    LargeImageUrl = media.Url,
+                    SmallImageKey = hasArtwork ? media.Site : null,
+                    SmallImageText = hasArtwork ? $"{(media.Site == "youtube_music" ? "Listening" : "Watching")} on {siteName}" : null,
+                    SmallImageUrl = hasArtwork ? media.Url : null
+                },
                 Buttons = string.IsNullOrWhiteSpace(media.Url) ? null : [new DiscordRPC.Button { Label = ButtonLabel(media.Site), Url = media.Url }]
             };
             _client.SetPresence(presence); _logger.Info($"Presence update: {media.Site}");
@@ -66,6 +82,20 @@ public sealed class DiscordPresenceService : IDisposable
         lock (_gate) { try { _client?.ClearPresence(); } catch (Exception ex) { _logger.Error("Presence clear failed", ex); } _lastFingerprint = null; _timestamps = null; _logger.Info("Presence clear"); }
     }
     private static string Truncate(string value, int max) => string.IsNullOrWhiteSpace(value) ? "Unknown" : value.Length <= max ? value : value[..(max - 1)] + "…";
+    private static string DisplayDetails(MediaPresence media)
+    {
+        if (!string.IsNullOrWhiteSpace(media.Artist))
+        {
+            var prefix = media.Artist + " — ";
+            if (media.Title.StartsWith(prefix, StringComparison.Ordinal)) return media.Title[prefix.Length..];
+        }
+        return media.Title;
+    }
+    private static string DisplayState(MediaPresence media)
+    {
+        var creator = string.IsNullOrWhiteSpace(media.Artist) ? SiteName(media.Site) : media.Artist;
+        return string.IsNullOrWhiteSpace(media.Album) ? creator : $"{creator} • {media.Album}";
+    }
     private static string SiteName(string site) => site switch { "youtube_music" => "YouTube Music", "d_anime" => "dアニメストア", "unext" => "U-NEXT", "netflix" => "Netflix", _ => "YouTube" };
     private static string ButtonLabel(string site) => site switch { "youtube_music" => "Open in YouTube Music", "d_anime" => "Watch on dアニメストア", "unext" => "Watch on U-NEXT", "netflix" => "Watch on Netflix", _ => "Watch on YouTube" };
     public void Dispose() { Clear(); _client?.Dispose(); }
