@@ -66,18 +66,20 @@ jobs:
           }
 
       - name: Publish Tray
-        run: dotnet publish src/FirefoxDiscordPresence.Tray/FirefoxDiscordPresence.Tray.csproj --configuration Release --runtime win-x64 --self-contained false --output dist/tray
+        run: dotnet publish src/FirefoxDiscordPresence.Tray/FirefoxDiscordPresence.Tray.csproj --configuration Release --runtime win-x64 --self-contained true --output package/tray
 
       - name: Publish Bridge
-        run: dotnet publish src/FirefoxDiscordPresence.Bridge/FirefoxDiscordPresence.Bridge.csproj --configuration Release --runtime win-x64 --self-contained false --output dist/bridge
+        run: dotnet publish src/FirefoxDiscordPresence.Bridge/FirefoxDiscordPresence.Bridge.csproj --configuration Release --runtime win-x64 --self-contained true --output package/bridge
 
       - name: Package extension and installation files
         shell: pwsh
         run: |
-          Compress-Archive -Path extension/* -DestinationPath dist/firefox-extension.zip
-          Copy-Item -Recurse scripts dist/scripts
-          Copy-Item -Recurse native-host dist/native-host
-          Copy-Item README.md dist/README.md
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Compress-Archive -Path extension/* -DestinationPath package/firefox-extension.zip
+          Copy-Item -Recurse scripts package/scripts
+          Copy-Item -Recurse native-host package/native-host
+          Copy-Item README.md package/README.md
+          Compress-Archive -Path package/* -DestinationPath dist/FoxPresence-win-x64.zip
 
       - name: Upload test results
         if: always()
@@ -92,6 +94,32 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: FoxPresence-win-x64-${{ github.sha }}
-          path: dist/
+          path: dist/FoxPresence-win-x64.zip
           if-no-files-found: error
           retention-days: 30
+
+  release:
+    name: Create GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Windows package
+        uses: actions/download-artifact@v8
+        with:
+          name: FoxPresence-win-x64-${{ github.sha }}
+          path: release-assets
+
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" `
+            "release-assets/FoxPresence-win-x64.zip#FoxPresence for Windows x64" `
+            --repo "${{ github.repository }}" `
+            --title "FoxPresence ${{ github.ref_name }}" `
+            --generate-notes

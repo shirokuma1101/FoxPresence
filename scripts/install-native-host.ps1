@@ -1,8 +1,13 @@
 param(
     [Parameter(Mandatory = $false)]
-    [string] $BridgePath = (Join-Path $PSScriptRoot '..\artifacts\bridge\FirefoxDiscordPresence.Bridge.exe')
+    [string] $BridgePath
 )
 $ErrorActionPreference = 'Stop'
+if (-not $BridgePath) {
+    $releaseBridge = Join-Path $PSScriptRoot '..\bridge\FirefoxDiscordPresence.Bridge.exe'
+    $developmentBridge = Join-Path $PSScriptRoot '..\artifacts\bridge\FirefoxDiscordPresence.Bridge.exe'
+    $BridgePath = if (Test-Path -LiteralPath $releaseBridge) { $releaseBridge } else { $developmentBridge }
+}
 $resolvedBridge = (Resolve-Path -LiteralPath $BridgePath).Path
 if ([IO.Path]::GetExtension($resolvedBridge) -ne '.exe') { throw 'BridgePath must point to FirefoxDiscordPresence.Bridge.exe.' }
 $installDirectory = Join-Path $env:APPDATA 'FirefoxDiscordPresence\native-host'
