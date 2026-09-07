@@ -35,5 +35,5 @@ globalThis.FdpMessaging = (() => {
   }
   function text(selectors) { for (const selector of selectors) { const value = document.querySelector(selector)?.textContent?.trim(); if (value) return value; } return ""; }
   function attr(selectors, name) { for (const selector of selectors) { const value = document.querySelector(selector)?.getAttribute(name); if (value) return value; } return null; }
-  return { observe, text, attr };
+  return { observe, send, text, attr };
 })();
