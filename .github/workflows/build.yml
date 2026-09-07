@@ -47,6 +47,8 @@ jobs:
           node --check extension/content/youtube.js
           node --check extension/content/youtube-music.js
           node --check extension/content/d-anime.js
+          node --check extension/content/unext.js
+          node --check extension/content/netflix.js
           Get-Content -Raw extension/manifest.json | ConvertFrom-Json | Out-Null
 
       - name: Validate PowerShell scripts

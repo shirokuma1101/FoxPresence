@@ -66,7 +66,7 @@ public sealed class DiscordPresenceService : IDisposable
         lock (_gate) { try { _client?.ClearPresence(); } catch (Exception ex) { _logger.Error("Presence clear failed", ex); } _lastFingerprint = null; _timestamps = null; _logger.Info("Presence clear"); }
     }
     private static string Truncate(string value, int max) => string.IsNullOrWhiteSpace(value) ? "Unknown" : value.Length <= max ? value : value[..(max - 1)] + "…";
-    private static string SiteName(string site) => site switch { "youtube_music" => "YouTube Music", "d_anime" => "dアニメストア", _ => "YouTube" };
-    private static string ButtonLabel(string site) => site switch { "youtube_music" => "Open in YouTube Music", "d_anime" => "Watch on dアニメストア", _ => "Watch on YouTube" };
+    private static string SiteName(string site) => site switch { "youtube_music" => "YouTube Music", "d_anime" => "dアニメストア", "unext" => "U-NEXT", "netflix" => "Netflix", _ => "YouTube" };
+    private static string ButtonLabel(string site) => site switch { "youtube_music" => "Open in YouTube Music", "d_anime" => "Watch on dアニメストア", "unext" => "Watch on U-NEXT", "netflix" => "Watch on Netflix", _ => "Watch on YouTube" };
     public void Dispose() { Clear(); _client?.Dispose(); }
 }

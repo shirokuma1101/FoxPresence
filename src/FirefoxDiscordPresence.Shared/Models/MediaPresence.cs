@@ -18,7 +18,7 @@ public sealed record MediaPresence
     {
         var duration = double.IsFinite(Duration) && Duration > 0 ? Duration : 0;
         var current = double.IsFinite(CurrentTime) ? Math.Clamp(CurrentTime, 0, duration > 0 ? duration : double.MaxValue) : 0;
-        return this with { Site = Site is "youtube" or "youtube_music" or "d_anime" ? Site : "", Title = Title.Trim(), Artist = Artist.Trim(), Album = string.IsNullOrWhiteSpace(Album) ? null : Album.Trim(), Url = ValidHttps(Url), ThumbnailUrl = ValidHttps(ThumbnailUrl), CurrentTime = current, Duration = duration, UpdatedAt = UpdatedAt == default ? DateTimeOffset.UtcNow : UpdatedAt };
+        return this with { Site = Site is "youtube" or "youtube_music" or "d_anime" or "unext" or "netflix" ? Site : "", Title = Title.Trim(), Artist = Artist.Trim(), Album = string.IsNullOrWhiteSpace(Album) ? null : Album.Trim(), Url = ValidHttps(Url), ThumbnailUrl = ValidHttps(ThumbnailUrl), CurrentTime = current, Duration = duration, UpdatedAt = UpdatedAt == default ? DateTimeOffset.UtcNow : UpdatedAt };
     }
     private static string ValidHttps(string? value) => Uri.TryCreate(value, UriKind.Absolute, out var uri) && uri.Scheme == Uri.UriSchemeHttps ? uri.ToString() : "";
 }

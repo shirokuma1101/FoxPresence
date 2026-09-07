@@ -20,4 +20,11 @@ public sealed class MediaPresenceTests
         var actual = new MediaPresence { Site = "d_anime", Title = " 第3話 " }.Normalize();
         Assert.Equal("d_anime", actual.Site); Assert.Equal("第3話", actual.Title);
     }
+    [Theory]
+    [InlineData("unext")]
+    [InlineData("netflix")]
+    public void Normalize_AcceptsStreamingSites(string site)
+    {
+        Assert.Equal(site, new MediaPresence { Site = site }.Normalize().Site);
+    }
 }

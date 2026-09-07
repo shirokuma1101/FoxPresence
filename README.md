@@ -1,8 +1,8 @@
 # FoxPresence
 
-Firefoxで再生しているYouTube、YouTube Music、dアニメストアをDiscord DesktopのRich Presenceへ表示するWindows用アプリです。Bot、Discordユーザートークン、ブラウザCookieは使用しません。
+Firefoxで再生しているYouTube、YouTube Music、dアニメストア、U-NEXT、NetflixをDiscord DesktopのRich Presenceへ表示するWindows用アプリです。Bot、Discordユーザートークン、ブラウザCookieは使用しません。
 
-> Version 0.1.1以降を使用してください。0.1.0のインストーラーはWindows PowerShell 5.1に対応していません。
+> Version 0.2.0以降を推奨します。0.1.0のインストーラーはWindows PowerShell 5.1に対応していません。
 
 ## Installation
 
@@ -29,6 +29,8 @@ Discord Web版だけではPresenceを表示できません。Release ZIPには.N
 - `youtube`
 - `youtube_music`
 - `d_anime`
+- `unext`
+- `netflix`
 
 ### 3. FoxPresenceをダウンロードする
 
@@ -76,7 +78,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1 -DiscordApplicati
 ### 6. Presenceを確認する
 
 1. Discord Desktopを起動し、ログインします。
-2. FirefoxでYouTube、YouTube Music、またはdアニメストアを開いて再生します。
+2. FirefoxでYouTube、YouTube Music、dアニメストア、U-NEXT、またはNetflixを開いて再生します。
 3. 数秒待ち、自分のDiscordプロフィールにタイトルと再生時間が表示されることを確認します。
 4. 一時停止するとPresenceは消え、再生を再開すると再表示されます。
 
@@ -90,15 +92,34 @@ powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1 -DiscordApplicati
 
 ### アンインストール
 
-1. タスクトレイメニューからFoxPresenceを終了します。
-2. 展開したフォルダのPowerShellで次を実行します。
+展開したFoxPresenceフォルダをエクスプローラーで開き、アドレスバーへ`powershell`と入力してEnterを押します。開いたPowerShellで次を実行します。
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\uninstall-native-host.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1
 ```
 
-3. 「Start with Windows」を有効にしていた場合は、再度Trayを起動してチェックを外すか、Windowsのスタートアップ設定から`FirefoxDiscordPresence`を無効化します。
-4. `%APPDATA%\FirefoxDiscordPresence`と展開したFoxPresenceフォルダを削除します。ログも消す場合は`%LOCALAPPDATA%\FirefoxDiscordPresence`を削除します。
+このスクリプトは次を自動的に行います。
+
+1. 実行中のFoxPresence Tray Applicationを終了
+2. Firefox Native Messaging Hostの登録とmanifestを削除
+3. Windows自動起動の登録を削除
+4. `%APPDATA%\FirefoxDiscordPresence`の設定を削除
+5. `%LOCALAPPDATA%\FirefoxDiscordPresence`のログを削除
+
+続いてFirefoxの`about:debugging#/runtime/this-firefox`を開き、「Firefox Discord Presence」の「削除」を押します。一時アドオンなのでFirefoxを再起動するだけでも解除されます。最後に、展開したFoxPresenceフォルダをエクスプローラーから削除してください。
+
+再インストールに備えて設定またはログを残す場合は、次のオプションを使用できます。
+
+```powershell
+# 設定を残す
+powershell -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1 -KeepUserData
+
+# ログを残す
+powershell -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1 -KeepLogs
+
+# 設定とログを両方残す
+powershell -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1 -KeepUserData -KeepLogs
+```
 
 ## Troubleshooting
 
@@ -114,6 +135,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\uninstall-native-host.ps1
 - YouTube
 - YouTube Music
 - dアニメストア
+- U-NEXT
+- Netflix
 
 複数タブで同時に再生している場合、最後に再生を開始したタブがPresence対象になります。別タブの操作中やFirefox最小化中も追跡します。
 
@@ -158,4 +181,4 @@ dotnet publish src/FirefoxDiscordPresence.Bridge -c Release -r win-x64 --self-co
 
 ## Security and privacy
 
-拡張機能のhost permissionはYouTube、YouTube Music、dアニメストアだけです。Discordユーザートークン、Bot Token、ブラウザCookie、Googleまたはdアカウントの認証情報は取得・保存しません。Native Pipeは同じWindowsユーザーからのみ接続できます。
+拡張機能のhost permissionは対応するYouTube、YouTube Music、dアニメストア、U-NEXT、Netflixの公式ドメインだけです。Discordユーザートークン、Bot Token、ブラウザCookie、各サービスの認証情報は取得・保存しません。Native Pipeは同じWindowsユーザーからのみ接続できます。
