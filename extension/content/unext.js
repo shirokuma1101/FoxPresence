@@ -8,6 +8,7 @@
   const clean = value => (value || "").replace(/\s*[|｜-]\s*U-NEXT.*$/iu, "").replace(/\s+/g, " ").trim();
   const useful = value => value && value.length <= 300
     && !/^(?:再生|U-NEXT|ユーネクスト|(?:SID|ED)\d+)$/iu.test(value)
+    && !/^(?:洋画|邦画|海外ドラマ|国内ドラマ|韓流・アジア|アニメ|キッズ|TV番組・エンタメ|報道・スペシャル|音楽・ライブ|舞台・演劇)$/u.test(value)
     && !/^https?:\/\//iu.test(value);
 
   function remember(title, artist, thumbnail) {
@@ -43,8 +44,8 @@
     const normalized = key.replace(/[_-]/g, "").toLowerCase();
     if (/(?:id|code|url|href|path)$/.test(normalized)) return -1;
     const priorities = entityType === "episode"
-      ? ["episodetitle", "subtitle", "subtitlename", "episodename", "displayname", "name", "title"]
-      : ["titlename", "seriestitle", "programtitle", "displayname", "name", "title"];
+      ? ["episodetitle", "subtitle", "subtitlename", "episodename"]
+      : ["titlename", "seriestitle", "programtitle", "contenttitle", "worktitle"];
     const index = priorities.indexOf(normalized);
     return index < 0 ? -1 : priorities.length - index;
   }
@@ -92,9 +93,9 @@
   }
 
   function readDocument(doc) {
-    const series = directText(doc, ["[data-title-name]", "[data-program-title]", "[data-series-title]", "[data-testid='player-title']", "[data-testid='title']", "[class*='PlayerTitle']", "[class*='playerTitle']", "main h1", "h1"])
+    const series = directText(doc, ["[class*='styles__Title-sc-']", "[data-title-name]", "[data-program-title]", "[data-series-title]", "[data-testid='player-title']", "[data-testid='title']", "[class*='PlayerTitle']", "[class*='playerTitle']", "main h1", "h1"])
       || findEntityData(doc, titleCode(), "title");
-    let episode = directText(doc, ["[data-episode-title]", "[data-subtitle]", "[data-testid='player-episode-title']", "[data-testid='episode-title']", "[class*='EpisodeTitle']", "[class*='episodeTitle']"])
+    let episode = directText(doc, ["[class*='styles__SubTitle-sc-']", "[data-episode-title]", "[data-subtitle]", "[data-testid='player-episode-title']", "[data-testid='episode-title']", "[class*='EpisodeTitle']", "[class*='episodeTitle']"])
       || findEntityData(doc, episodeCode(), "episode");
     const episodeLink = episodeCode() && doc.querySelector(`[href*='${episodeCode()}'],[data-episode-code='${episodeCode()}']`);
     if (!episode && episodeLink) episode = clean(episodeLink.closest("li,article,[class*='episode' i]")?.textContent);
